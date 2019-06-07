@@ -459,16 +459,16 @@ type Namespaces = Map Ident (Doc.Docd Namespace)
 
 -- | Bindings, either from the env or from the primops.
 data Bindings prims = Bindings
-    { bindingsEnv            :: Env Value
-    , bindingsNamespaces     :: Namespaces
+    { bindingsEnv              :: Env Value
+    , bindingsNamespaces       :: Namespaces
     , bindingsCurrentNamespace :: Ident
-    , bindingsPrimFns        :: prims
-    , bindingsRefs           :: IntMap Value
-    , bindingsNextRef        :: Int
-    , bindingsHandles        :: IntMap Handle.Handle
-    , bindingsNextHandle     :: Int
-    , bindingsProcHandles    :: IntMap ProcessHandle
-    , bindingsNextProcHandle :: Int
+    , bindingsPrimFns          :: prims
+    , bindingsRefs             :: IntMap Value
+    , bindingsNextRef          :: Int
+    , bindingsHandles          :: IntMap Handle.Handle
+    , bindingsNextHandle       :: Int
+    , bindingsProcHandles      :: IntMap ProcessHandle
+    , bindingsNextProcHandle   :: Int
     } deriving (Functor, Generic)
 
 emptyBindings :: Env Value -> Bindings (PrimFns m)
@@ -563,9 +563,9 @@ withEnv modifyNs modifier action = do
 
 callExample :: Text -> Value -> Maybe Text
 callExample name value = case value of
-    Lambda args _ _ _      -> Just $ lambdaDoc args
+    Lambda args _ _ _ -> Just $ lambdaDoc args
     --LambdaRec _ args _ _ _ -> Just $ lambdaDoc args
-    _                      -> Nothing
+    _                 -> Nothing
   where
     lambdaDoc args = "(" <> T.intercalate " " (name : lambdaArgsDoc args) <> ")"
     lambdaArgsDoc args =
@@ -588,9 +588,9 @@ lookupAtomWithDoc i@(Ident name) =
     lookupInNamespace :: Namespaces -> Ident -> Ident -> Lang m (Doc.Docd Value)
     lookupInNamespace nss nsk j = case Map.lookup nsk nss of
       Just (Doc.Docd _ ns) -> case Map.lookup j ns of
-        Just (Here x) -> docd x
+        Just (Here x)    -> docd x
         Just (There a b) -> lookupInNamespace nss a b
-        Nothing -> throwErrorHere err
+        Nothing          -> throwErrorHere err
       Nothing -> throwErrorHere err
     err = UnknownIdentifier i
 
@@ -617,7 +617,7 @@ modifyCurrentNamespace f = do
     nss' <- Map.alterF f' cns nss
     put $ b { bindingsNamespaces = nss' }
   where
-    f' Nothing = throwErrorHere $ OtherError "namespace missing!" -- TODO(james): make better
+    f' Nothing   = throwErrorHere $ OtherError "namespace missing!" -- TODO(james): make better
     f' (Just ns) = pure $ Just (f <$> ns)
 
 defineAtomInNs :: Monad m => Ident -> Maybe Text -> Value -> Lang m ()
