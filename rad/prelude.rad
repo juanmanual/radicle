@@ -2,12 +2,12 @@
 ;;(import prelude/test-macro '[test tests] :unqualified)
 
 (load-ns! "prelude/basic.rad")
+(load-ns! "prelude/macros.rad")
 (load-ns! "prelude/patterns.rad")
 ;; Adds the special function `match-pat` to the global scope. This is
 ;; required for the extended `match` to work in the modules loaded
 ;; after.
 ;;(import prelude/patterns :unqualified)
-(load-ns! "prelude/macros.rad")
 (load-ns! "prelude/bool.rad")
 (load-ns! "prelude/seq.rad")
 (load-ns! "prelude/list.rad")

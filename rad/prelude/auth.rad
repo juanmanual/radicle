@@ -2,11 +2,11 @@
   "Functions for easily handling authorization on machines.")
 
 (require prelude/test-macro ['test])
-(require prelude/basic [])
-(require prelude/validation [] validation)
-(require prelude/set [] set)
+(require prelude/basic '[if])
+(require prelude/validation '[member pred] validation)
+(require prelude/set '[empty insert delete] set)
 (require prelude/dict '[dict-from-seq keys])
-(require prelude/patterns [])
+(require prelude/patterns '[match-pat])
 (require prelude/ref '[modify-ref])
 (require prelude/lens '[over-ref @])
 
@@ -61,27 +61,27 @@
                                                msg)))
         'x                             (throw 'invalid-command x)))))
 
-(test "make-simple-auth"
-  [:setup (do
-    (def auth (make-simple-auth [:admin]))
-    (auth [:create-group :regular])
-    (auth [:add-to :admin "alice"])
-    (auth [:add-to :regular "bob"])
-    (auth [:add-to :regular "carol"])
-    (auth [:remove-from :regular "carol"])
-  )]
+;; (test "make-simple-auth"
+;;   [:setup (do
+;;     (def auth (make-simple-auth [:admin]))
+;;     (auth [:create-group :regular])
+;;     (auth [:add-to :admin "alice"])
+;;     (auth [:add-to :regular "bob"])
+;;     (auth [:add-to :regular "carol"])
+;;     (auth [:remove-from :regular "carol"])
+;;   )]
 
-  [ (auth [:is-in :admin "alice"]) ==> "alice" ]
-  [ (catch 'validation-failure (auth [:is-in :admin "bob"]) (fn [_] :ok))
-     ==> :ok ]
-  [ (catch 'validation-failure (auth [:is-in :regular "carol"]) (fn [_] :ok))
-     ==> :ok ]
-  [ ((auth [:allowed :admin]) "bob") ==> "bob" ]
-  [ (do
-      (auth [:initialize])
-      (catch 'validation-failure ((auth [:allowed :admin]) {:author "bob"}) (fn [_] :ok)))
-     ==> :ok ]
-)
+;;   [ (auth [:is-in :admin "alice"]) ==> "alice" ]
+;;   [ (catch 'validation-failure (auth [:is-in :admin "bob"]) (fn [_] :ok))
+;;      ==> :ok ]
+;;   [ (catch 'validation-failure (auth [:is-in :regular "carol"]) (fn [_] :ok))
+;;      ==> :ok ]
+;;   [ ((auth [:allowed :admin]) "bob") ==> "bob" ]
+;;   [ (do
+;;       (auth [:initialize])
+;;       (catch 'validation-failure ((auth [:allowed :admin]) {:author "bob"}) (fn [_] :ok)))
+;;      ==> :ok ]
+;; )
 
 (def add-admin
   "Add an admin. If the auth is initialized, only an admin is allowed to do so.

@@ -17,6 +17,7 @@ import           Radicle.Internal.Core
 import qualified Radicle.Internal.Doc as Doc
 import           Radicle.Internal.Identifier (Ident(..))
 import           Radicle.Internal.Orphans ()
+import Radicle.Internal.Pretty as Pretty
 
 -- | Basic evaluation.
 baseEval :: Monad m => Value -> Lang m Value

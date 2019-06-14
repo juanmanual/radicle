@@ -155,6 +155,12 @@ purePrimFns = fromList $ allDocs $
           setBindings x
           pure ok
       )
+    , ("trace!"
+      , "Prints a string."
+      , oneArg "trace!" $ \case
+        (String x) -> trace x $ pure nil
+        v -> throwErrorHere $ TypeError "put-str!" 0 TString v
+    )
     , ("list"
       , "Turns the arguments into a list."
       , pure . List)
