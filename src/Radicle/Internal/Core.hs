@@ -449,11 +449,11 @@ data Bindings prims = Bindings
     , bindingsNextProcHandle   :: Int
     } deriving (Functor, Generic)
 
-emptyBindings :: Env Value -> Bindings (PrimFns m)
-emptyBindings e = Bindings e (Map.singleton top topNs) top mempty mempty 0 mempty 0 mempty 0
+emptyBindings :: Env Value -> Namespace -> Bindings (PrimFns m)
+emptyBindings e tl = Bindings e (Map.singleton top topNs) top mempty mempty 0 mempty 0 mempty 0
   where
     top = Ident "toplevel"
-    topNs = Doc.Docd (Just "The toplevel namespace.") mempty
+    topNs = Doc.Docd (Just "The toplevel namespace.") tl
 
 -- | Extract an environment and references from a Radicle value and put
 -- them as the current bindings. Primitive functions are not changed.
@@ -479,7 +479,7 @@ setBindings value = do
 
 bindingsFromRadicle :: Value -> Either Text (Bindings (PrimFns m))
 bindingsFromRadicle x = case x of
-    VState s -> pure $ (emptyBindings (stateEnv s))
+    VState s -> pure $ (emptyBindings (stateEnv s) mempty)
                 { bindingsRefs = stateRefs s
                 , bindingsNextRef = length (stateRefs s)
                 , bindingsCurrentNamespace = stateCurrentNamespace s

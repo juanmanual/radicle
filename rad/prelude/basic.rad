@@ -38,8 +38,8 @@
 ;; some
 
 (def some
-"Checks that there is a least one truthy value in a list."
-(fn [xs] (foldr or #f xs)))
+  "Checks that there is a least one truthy value in a list."
+  (fn [xs] (foldr or #f xs)))
 
 (test "some"
       [ (some '())            ==> #f ]

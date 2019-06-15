@@ -57,7 +57,10 @@
     (match exprs
            [] {:machine machine :result []}
            (/cons 'e 'es)
-           (let [x (eval (list 'tx (list 'quote e)) machine)
+           (let [x (eval (list 'do
+                               (list 'ns 'toplevel)
+                               (list 'tx (list 'quote e)))
+                         machine)
                  y (eval (nth 0 x) (nth 1 x))
                  new-state (nth 1 y)
                  result (nth 0 y)]
@@ -82,11 +85,8 @@
       
       (write-ref primitive-stub-ref/send!
                  (fn [name exprs]
-                   (put-str! "in stub send")
                    (let [m (lookup name (read-ref remote-machines))
-                         _1 (put-str! "found m")
-                         res (tx-in-fake-machine m exprs)
-                         _2 (put-str! "got res")]
+                         res (tx-in-fake-machine m exprs)]
                      (modify-ref remote-machines (fn [rms] (insert name (lookup :machine res) rms)))
                      (lookup :result res))))
       

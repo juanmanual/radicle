@@ -10,6 +10,7 @@ import           Protolude hiding (Constructor, Handle, TypeError, (<>))
 import qualified Data.List.NonEmpty as NonEmpty
 import qualified Data.Map as Map
 import           Data.Semigroup ((<>))
+import           Data.Copointed (copoint)
 import qualified Data.Sequence as Seq
 import qualified GHC.Exts as GhcExts
 
@@ -17,7 +18,6 @@ import           Radicle.Internal.Core
 import qualified Radicle.Internal.Doc as Doc
 import           Radicle.Internal.Identifier (Ident(..))
 import           Radicle.Internal.Orphans ()
-import Radicle.Internal.Pretty as Pretty
 
 -- | Basic evaluation.
 baseEval :: Monad m => Value -> Lang m Value
@@ -43,7 +43,9 @@ baseEval val = logValPos val $ case val of
 -- - The result of this is evaluated normally.
 transact :: Monad m => Value -> Lang m Value
 transact expr = do
-    tx <- lookupAtom (Ident "tx")
+    nss <- gets bindingsNamespaces
+    tx' <- lookupInNamespace nss (Ident "toplevel") (Ident "tx")
+    let tx = copoint tx'
     logValPos tx $ do
         expr' <- callFn tx [expr]
         baseEval expr'

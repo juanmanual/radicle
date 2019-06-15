@@ -163,15 +163,15 @@
                               :issue-number 'n}
                              (< i (length (view-ref issues (.. (@ n) (@ :comments))))))))
     (validator/or
-      [(validator/pred
-        "edit author == original author"
-        (fn [c]
-          (match c
-                 {:issue-number 'n
-                  :comment-index 'i
-                  :author 'a}
-                 (eq? (view-ref issues (... [(@ n) (@ :comments) (@nth i) (@ :author)]))
-                      a))))
+     [(validator/pred
+       "edit author == original author"
+       (fn [c]
+         (match c
+                {:issue-number 'n
+                 :comment-index 'i
+                 :author 'a}
+                (eq? (view-ref issues (... [(@ n) (@ :comments) (@nth i) (@ :author)]))
+                     a))))
       (auth [:allowed :admin])])]))
 
 (def strip-input
@@ -279,6 +279,8 @@
     'edit-comment edit-comment
     'list-issues  list-issues
     'add-admin    (add-admin auth)}))
+
+(ns toplevel)
 
 (def tx
   (lock-machine-commands (auth [:allowed :admin])

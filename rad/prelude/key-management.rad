@@ -36,7 +36,7 @@
     (if (lookup :use-fake-key (read-ref key-pair-mode))
       (lookup :fake-key (read-ref key-pair-mode))
       (catch 'any
-        (io/read-file-value! (key-path))
+          (io/read-file-value! (key-path))
         (fn [x] :nothing)))))
 
 (def get-keys!
@@ -53,6 +53,6 @@
   full absolute path of the created file."
   (fn []
     (io/shell! (string-append "mkdir -p " (io/base-path!)) "")
-    (def kp (gen-key-pair! (default-ecc-curve)))
-    (io/write-file! (key-path) (show kp))
-    (key-path)))
+    (let [kp (gen-key-pair! (default-ecc-curve))]
+      (io/write-file! (key-path) (show kp))
+      (key-path))))
