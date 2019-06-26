@@ -5,13 +5,46 @@
 (load! (find-module-file! "prelude/io-utils.rad"))
 (load! (find-module-file! "monadic/project.rad"))
 
-(file-module! "prelude/error-messages.rad")
-(file-module! "monadic/items.rad")
+(load-ns! "prelude/error-messages.rad")
+(load-ns! "monadic/items.rad")
 
-(import prelude/error-messages :as 'error)
-(import monadic/items :as 'items)
+(ns rad-patch)
 
-(import prelude/validation :as 'validation)
+(require prelude/basic '[if])
+(require prelude/error-messages '[checkout-new-branch-failure
+                                  applying-patch-failure
+                                  checkout-master-failure
+                                  applying-accepted-patch-failure
+                                  push-patch-failure
+                                  state-change-failure]
+         error)
+(require monadic/items
+         '[verify-item-number
+           pretty-item-view enrich-item
+           pretty-state list-items]
+         items)
+
+(require prelude/dict '[values])
+(require prelude/patterns '[match-pat _])
+(require prelude/machine '[catch-daemon!] machine)
+(require prelude/cmd-parsing '[/cmd-0 /cmd-1 /cmd-2 /cmd-help /cmd-opts whole-num])
+(require prelude/validation [] validation)
+(require prelude/strings '[intercalate unlines] string)
+(require monadic/project '[get-rsm-of-type!])
+(require prelude/io '[process-with-stdout-stderr-exitcode!
+                      process-with-stdout!
+                      shell-with-stdout!
+                      write-file!])
+(require prelude/io-utils '[get-git-commit-data!
+                            process-git-with-exit!
+                            get-git-username!])
+(require monadic/patch '[simple-create-patch!
+                         simple-add-comment!
+                         simple-edit-patch!
+                         list-patches])
+(require prelude/track-newness '[mark-all-read!
+                                 mark-read!
+                                 mark-unread!] newness)
 
 (def machine-name (fn [] (get-rsm-of-type! :rad-patch)))
 
@@ -115,7 +148,7 @@
 (def apply-patch!
   "Given a patch, apply it to the current branch"
   (fn [patch msg]
-    (def file (unlines (shell-with-stdout! "mktemp" "")))
+    (def file (string/unlines (shell-with-stdout! "mktemp" "")))
     (put-str! file)
     (write-file! file patch)
     (process-git-with-exit! ["am" file] msg)))
@@ -223,7 +256,7 @@
     (simple-add-comment! machine n added-comment (get-git-username!))
     (string-append "Sent comment: " added-comment)))
 
-(def list
+(def show-list
   (fn [machine options]
     (def patches (values (list-patches machine)))
     (items/list-items machine options patches :patch add-comment-from-editor!)))
@@ -253,7 +286,7 @@
 (machine/catch-daemon!
  (fn []
    (match args
-          (/list-cmd 'options) (list (machine-name) options)
+          (/list-cmd 'options) (show-list (machine-name) options)
           (/cmd-1 "propose" 'commit help) (new-patch! (machine-name) commit)
           (/cmd-1 "checkout" 'n help)  (whole-patch-num "checkout" n (fn [n] (checkout-patch! (machine-name) n)))
           (/cmd-1 "show" 'n help)      (whole-patch-num "show" n (fn [n] (show-patch! (machine-name) n)))

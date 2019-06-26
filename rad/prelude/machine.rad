@@ -14,18 +14,18 @@
 (require prelude/seq [])
 (require prelude/key-management '[get-keys!])
 
-(def primitive-stub-ref/send! (ref daemon/send!))
+(defp primitive-stub-ref/send! (ref daemon/send!))
 (def send!
   "Update a machine with the vector of `inputs` to evaluate. Returns a vector
   with the evaluation results."
   (fn [machine-id inputs] ((read-ref primitive-stub-ref/send!) machine-id inputs)))
 
-(def primitive-stub-ref/query! (ref daemon/query!))
+(defp primitive-stub-ref/query! (ref daemon/query!))
 (def query!
   "Send an expression to be evaluated on a machine. Does not alter the machine."
   (fn [machine-id expr] ((read-ref primitive-stub-ref/query!) machine-id expr)))
 
-(def primitive-stub-ref/new-machine! (ref daemon/new-machine!))
+(defp primitive-stub-ref/new-machine! (ref daemon/new-machine!))
 (def new-machine!
   "Creates a new machine. Returns the machine name."
   (fn [] ((read-ref primitive-stub-ref/new-machine!))))
