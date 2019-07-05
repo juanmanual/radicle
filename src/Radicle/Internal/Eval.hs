@@ -44,7 +44,7 @@ baseEval val = logValPos val $ case val of
 transact :: Monad m => Value -> Lang m Value
 transact expr = do
     nss <- gets bindingsNamespaces
-    tx' <- lookupInNamespace False nss (Ident "toplevel") (Ident "tx")
+    tx' <- lookupInNamespace True nss (Ident "toplevel") (Ident "tx")
     let tx = copoint tx'
     logValPos tx $ do
         expr' <- callFn tx [expr]
@@ -71,6 +71,14 @@ specialForms = Map.fromList $ first Ident <$>
         [a@(Atom i)] -> ns a i Nothing
         [a@(Atom i), String doc] -> ns a i (Just doc)
         _ -> throwErrorHere $ SpecialForm "ns" "The `ns` form expects a symbol and optionally a docstring."
+    )
+  , ( "ns-lookup"
+    , \case
+         [Atom i, Atom j] -> do
+           nss <- gets bindingsNamespaces
+           Doc.Docd _ x <- lookupInNamespace True nss i j
+           pure x
+         _ -> throwErrorHere $ SpecialForm "ns-lookup" "The `ns-lookup` form expects two symbols."
     )
   , ( "require"
     , \case

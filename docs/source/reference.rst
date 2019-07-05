@@ -1514,6 +1514,12 @@ to the user.
 
 A lens for variables in envs.
 
+``(eval-in-fake-machine machine exprs)``
+~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+
+Evaluates ``exprs`` in the ``machine`` and returns a dict with the
+``:result`` and the resulting ``:machine``.
+
 ``(file-to-ns file)``
 ~~~~~~~~~~~~~~~~~~~~~
 

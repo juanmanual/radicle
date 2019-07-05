@@ -1,8 +1,5 @@
 (ns monadic/patch-remote)
 
-;; TODO(james): likely some of these are unneeded deps. Just copy-pasted those
-;; of issue-remote.
-
 (require prelude/basic '[if])
 (require prelude/macros '[let])
 (require prelude/dict '[keys delete-many lookup-default])

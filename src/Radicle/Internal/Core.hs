@@ -575,12 +575,10 @@ lookupInNamespace inCurrent nss nsk j@(Ident name) = case Map.lookup nsk nss of
     Just ns -> case Map.lookup j (copoint ns) of
       Just (Here vis x)
         | inCurrent || vis == Public -> pure $ docd name x
-      Just (Here _ _)                -> throwErrorHere err
+      Just (Here _ _)                -> throwErrorHere $ OtherError $ "Tried to lookup up a private variable: " <> show nsk <> " / "  <> name
       Just (There a b)               -> lookupInNamespace False nss a b
-      Nothing                        -> throwErrorHere err
-    Nothing -> throwErrorHere err
-  where
-    err = UnknownIdentifier nsk j
+      Nothing                        -> throwErrorHere (UnknownIdentifier nsk j)
+    Nothing -> throwErrorHere $ OtherError $ "Unknown namespace: " <> show nsk
 
 lookupAtomWithDoc :: forall m. Monad m => Ident -> Lang m (Doc.Docd Value)
 lookupAtomWithDoc i@(Ident name) =

@@ -50,23 +50,32 @@
   "An empty fake machine, which does not use the daemon"
   (pure-state))
 
+(defp fold-in-fake-machine
+  (fn [f]
+    (fn [machine exprs]
+      (match exprs
+             [] {:machine machine :result []}
+             (/cons 'e 'es)
+             (let [x (f e machine)
+                   new-state (nth 1 x)
+                   result (nth 0 x)]
+               (modify-map :result
+                           (fn [i] (cons result i))
+                           ((fold-in-fake-machine f) new-state es)))))))
+
+(def eval-in-fake-machine
+  "Evaluates `exprs` in the `machine` and returns a dict with the `:result` and
+  the resulting `:machine`."
+  (fold-in-fake-machine eval))
+
 (def tx-in-fake-machine
   "Transacts `exprs` in the `machine` and returns a dict with the `:result` and
   the resulting `:machine`."
-  (fn [machine exprs]
-    (match exprs
-           [] {:machine machine :result []}
-           (/cons 'e 'es)
-           (let [x (eval (list 'do
-                               (list 'ns 'toplevel)
-                               (list 'tx (list 'quote e)))
-                         machine)
-                 y (eval (nth 0 x) (nth 1 x))
-                 new-state (nth 1 y)
-                 result (nth 0 y)]
-             (modify-map :result
-                         (fn [i] (cons result i))
-                         (tx-in-fake-machine new-state es))))))
+  (fold-in-fake-machine
+   (fn [e machine]
+     (let [x (eval (list (list 'ns-lookup 'toplevel 'tx) (list 'quote e))
+                   machine)]
+       (eval (nth 0 x) (nth 1 x))))))
 
 (test "tx-in-fake-machine"
       [:setup
@@ -93,7 +102,7 @@
       (write-ref primitive-stub-ref/query!
                  (fn [name expr]
                    (let [machine (lookup name (read-ref remote-machines))]
-                     (first (lookup :result (tx-in-fake-machine machine [expr]))))))
+                     (first (lookup :result (eval-in-fake-machine machine [expr]))))))
 
       (write-ref primitive-stub-ref/new-machine!
                  (fn []

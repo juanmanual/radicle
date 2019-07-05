@@ -2,7 +2,10 @@
 
 (require prelude/test-macro '[test])
 (require prelude/macros '[let])
-(require prelude/machine '[send-code! new-machine! send-prelude! send-signed-command! query!] machine)
+(require prelude/machine
+         '[send-code! new-machine! send-prelude! send-signed-command! query!
+           install-remote-machine-fake]
+         machine)
 (require prelude/time '[install-fake-clock])
 (require prelude/key-management '[set-fake-keys! use-fake-keys! get-keys!])
 
