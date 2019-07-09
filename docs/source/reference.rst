@@ -362,7 +362,7 @@ Checks if the argument is a list.
 
 Checks if the argument is a dict.
 
-``find-module-file!``
+``find-rad-file!``
 ~~~~~~~~~~~~~~~~~~~~~
 
 Find a file according to radicle search path rules. These are: 1) If
